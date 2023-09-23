@@ -15,6 +15,7 @@ gunicorn
 g4f==0.0.3.4
 idna
 psycopg2
+pyExecJS
 Pillow
 pytz
 requests
