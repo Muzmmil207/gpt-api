@@ -14,22 +14,33 @@ from .serializers import MessageSerializer
 
 
 class MessageApi(APIView):
+    max_try = 50
 
     serializer_class = MessageSerializer
 
     def get(self, request, format=None):
-        """
-        Return a list of all users.
-        """
+
         usernames = []
         return Response(usernames)
 
     def post(self, request, format=None):
         message = request.data.get("message", "")
-        response = g4f.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": message}],
-        )
+
+        while True and self.max_try > 0:
+            try:
+                response = g4f.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=[{"role": "user", "content": message}],
+                )
+            except:
+                self.max_try -= 1
+                continue
+
+            if "<!DOCTYPE html>" not in response:
+                data = {"message": response}
+                return Response(data)
+
+            self.max_try -= 1
         data = {"message": response}
         return Response(data)
 
