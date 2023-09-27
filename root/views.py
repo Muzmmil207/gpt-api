@@ -2,11 +2,13 @@ import json
 
 import g4f
 from django.contrib.auth.models import User
-from django.http import StreamingHttpResponse
+from django.http import JsonResponse, StreamingHttpResponse
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import authentication, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
@@ -49,10 +51,12 @@ class MessageApi(APIView):
 class MessageApi(APIView):
     max_try = 50
 
+    renderer_classes = [JSONRenderer]
+
     serializer_class = MessageSerializer
 
     def message_generator(self, message):
-
+        response = "<!DOCTYPE html>"
         while True and self.max_try > 0:
             try:
                 response = g4f.ChatCompletion.create(
@@ -60,15 +64,14 @@ class MessageApi(APIView):
                     messages=[{"role": "user", "content": message}],
                     stream=True,
                 )
-            except:
+            except Exception as e:
+                print(e)
                 self.max_try -= 1
                 continue
 
-            if "<!DOCTYPE html>" not in response:
-                for message in response:
-                    yield message
-                break
-
+            for message in response:
+                yield message
+            break
             self.max_try -= 1
         # yield "Network Error"
 
@@ -79,7 +82,7 @@ class MessageApi(APIView):
 
     def post(self, request, format=None):
         message = request.data.get("message", "")
-
+        # message = self.message_generator(message)
         response = StreamingHttpResponse(
             self.message_generator(message), status=200, content_type="text/event-stream"
         )
