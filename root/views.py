@@ -2,6 +2,7 @@ import json
 
 import g4f
 from django.contrib.auth.models import User
+from django.http import StreamingHttpResponse
 from rest_framework import authentication, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
@@ -41,8 +42,49 @@ class MessageApi(APIView):
                 return Response(data)
 
             self.max_try -= 1
-        data = {"message": response}
+        data = {"message": "Network Error"}
         return Response(data)
+
+
+class MessageApi(APIView):
+    max_try = 50
+
+    serializer_class = MessageSerializer
+
+    def message_generator(self, message):
+
+        while True and self.max_try > 0:
+            try:
+                response = g4f.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=[{"role": "user", "content": message}],
+                    stream=True,
+                )
+            except:
+                self.max_try -= 1
+                continue
+
+            if "<!DOCTYPE html>" not in response:
+                for message in response:
+                    yield message
+                break
+
+            self.max_try -= 1
+        # yield "Network Error"
+
+    def get(self, request, format=None):
+
+        usernames = []
+        return Response(usernames)
+
+    def post(self, request, format=None):
+        message = request.data.get("message", "")
+
+        response = StreamingHttpResponse(
+            self.message_generator(message), status=200, content_type="text/event-stream"
+        )
+        response["Cache-Control"] = ("no-cache",)
+        return response
 
 
 @api_view(["GET"])
