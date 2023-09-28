@@ -19,38 +19,6 @@ from .serializers import MessageSerializer
 class MessageApi(APIView):
     max_try = 50
 
-    serializer_class = MessageSerializer
-
-    def get(self, request, format=None):
-
-        usernames = []
-        return Response(usernames)
-
-    def post(self, request, format=None):
-        message = request.data.get("message", "")
-
-        while True and self.max_try > 0:
-            try:
-                response = g4f.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
-                    messages=[{"role": "user", "content": message}],
-                )
-            except:
-                self.max_try -= 1
-                continue
-
-            if "<!DOCTYPE html>" not in response:
-                data = {"message": response}
-                return Response(data)
-
-            self.max_try -= 1
-        data = {"message": "Network Error"}
-        return Response(data)
-
-
-class MessageApi(APIView):
-    max_try = 50
-
     renderer_classes = [JSONRenderer]
 
     serializer_class = MessageSerializer
@@ -62,16 +30,17 @@ class MessageApi(APIView):
                 response = g4f.ChatCompletion.create(
                     model="gpt-3.5-turbo",
                     messages=[{"role": "user", "content": message}],
-                    stream=True,
+                    # stream=True,
                 )
             except Exception as e:
-                print(e)
+                # print(e)
                 self.max_try -= 1
                 continue
-
-            for message in response:
-                yield message
-            break
+            # yield from response
+            if "<!DOCTYPE html>" not in response:
+                for message in response:
+                    yield message
+                break
             self.max_try -= 1
         # yield "Network Error"
 
