@@ -13,52 +13,33 @@ from .serializers import MessageSerializer
 
 
 class MessageApi(APIView):
-    max_try = 50
+    max_try = 2
 
     renderer_classes = [JSONRenderer]
 
     serializer_class = MessageSerializer
 
-    # def message_generator(self, message):
-    #     response = "<!DOCTYPE html>"
-    #     while True and self.max_try > 0:
-    #         try:
-    #             response = g4f.ChatCompletion.create(
-    #                 model="gpt-3.5-turbo",
-    #                 messages=[{"role": "user", "content": message}],
-    #                 # stream=True,
-    #                 provider=Bing,
-    #             )
-    #         except Exception as e:
-    #             # print(e)
-    #             self.max_try -= 1
-    #             continue
-    #         # yield from response
-    #         if "<!DOCTYPE html>" not in response:
-    #             return response
-    #             # for message in response:
-    #             #     yield message
-    #             # break
-    #         self.max_try -= 1
-    #     # yield "Network Error"
-    #     return "Network Error!, Please try again."
     def message_generator(self, message):
-        try:
-            return g4f.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": message}],
-                provider=Bard,
-            )
-        except Exception as e:
-            return g4f.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": message}],
-                provider=Bing,
-            ).encode("utf-8")
-
-        except:
-            pass
-
+        response = "<!DOCTYPE html>"
+        while True and self.max_try > 0:
+            try:
+                response = g4f.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=[{"role": "user", "content": message}],
+                    # stream=True,
+                )
+            except Exception as e:
+                # print(e)
+                self.max_try -= 1
+                continue
+            # yield from response
+            if "<!DOCTYPE html>" not in response:
+                return response
+                # for message in response:
+                #     yield message
+                # break
+            self.max_try -= 1
+        # yield "Network Error"
         return "Network Error!, Please try again."
 
     def get(self, request, format=None):
