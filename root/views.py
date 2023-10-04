@@ -28,7 +28,7 @@ class MessageApi(APIView):
                     messages=[{"role": "user", "content": message}],
                     # stream=True,
                 )
-            except Exception as e:
+            except KeyError as e:
                 # print(e)
                 self.max_try -= 1
                 continue
