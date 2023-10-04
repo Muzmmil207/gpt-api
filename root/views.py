@@ -1,7 +1,28 @@
 import time
 
 import g4f
-from g4f.Provider import Bard, Bing
+from g4f.Provider import (
+    Acytoo,
+    Aichat,
+    Ails,
+    ChatBase,
+    ChatgptAi,
+    ChatgptLogin,
+    CodeLinkAva,
+    H2o,
+    HuggingChat,
+    Opchatgpts,
+    OpenaiChat,
+    OpenAssistant,
+    Raycast,
+    Theb,
+    Vercel,
+    Vitalentum,
+    Wewordle,
+    Ylokh,
+    You,
+    Yqcloud,
+)
 
 # from django.http import  StreamingHttpResponse
 from rest_framework.decorators import api_view
@@ -21,19 +42,42 @@ class MessageApi(APIView):
 
     def message_generator(self, message):
         response = "<!DOCTYPE html>"
-        while True and self.max_try > 0:
+        for provider in (
+            Acytoo,
+            Aichat,
+            Ails,
+            ChatBase,
+            ChatgptAi,
+            ChatgptLogin,
+            CodeLinkAva,
+            H2o,
+            HuggingChat,
+            Opchatgpts,
+            OpenAssistant,
+            OpenaiChat,
+            Raycast,
+            Theb,
+            Vercel,
+            Vitalentum,
+            Wewordle,
+            Ylokh,
+            You,
+            Yqcloud,
+        ):
             try:
                 response = g4f.ChatCompletion.create(
                     model="gpt-3.5-turbo",
                     messages=[{"role": "user", "content": message}],
-                    # stream=True,
+                    provider=provider,
                 )
-            except:
-                # print(e)
+            except Exception as e:
+                print(e)
                 self.max_try -= 1
                 continue
             # yield from response
             if "<!DOCTYPE html>" not in response:
+                print(f"response: {response}")
+                print(f"provider: {provider}")
                 return response
                 # for message in response:
                 #     yield message
