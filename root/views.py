@@ -1,19 +1,15 @@
-import json
-
+# import time
 import g4f
-from django.contrib.auth.models import User
-from django.http import JsonResponse, StreamingHttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework import authentication, permissions
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
+
+# from django.http import  StreamingHttpResponse
+from rest_framework.decorators import api_view
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
 from .serializers import MessageSerializer
+
+# from g4f.Provider import   Bard,   Bing
 
 
 class MessageApi(APIView):
@@ -31,6 +27,7 @@ class MessageApi(APIView):
                     model="gpt-3.5-turbo",
                     messages=[{"role": "user", "content": message}],
                     # stream=True,
+                    # provider=Bing
                 )
             except Exception as e:
                 # print(e)
@@ -38,11 +35,13 @@ class MessageApi(APIView):
                 continue
             # yield from response
             if "<!DOCTYPE html>" not in response:
-                for message in response:
-                    yield message
-                break
+                return response
+                # for message in response:
+                #     yield message
+                # break
             self.max_try -= 1
         # yield "Network Error"
+        return "Network Error!, Please try again."
 
     def get(self, request, format=None):
 
@@ -51,12 +50,12 @@ class MessageApi(APIView):
 
     def post(self, request, format=None):
         message = request.data.get("message", "")
-        # message = self.message_generator(message)
-        response = StreamingHttpResponse(
-            self.message_generator(message), status=200, content_type="text/event-stream"
-        )
-        response["Cache-Control"] = ("no-cache",)
-        return response
+        response = self.message_generator(message)
+        # response = StreamingHttpResponse(
+        #     self.message_generator(message), status=200, content_type="text/event-stream"
+        # )
+        # response["Cache-Control"] = ("no-cache",)
+        return Response(response)
 
 
 @api_view(["GET"])
