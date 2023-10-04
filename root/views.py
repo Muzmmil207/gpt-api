@@ -54,7 +54,8 @@ class MessageApi(APIView):
                 model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": message}],
                 provider=Bing,
-            )
+            ).encode("utf-8")
+
         except:
             pass
 
