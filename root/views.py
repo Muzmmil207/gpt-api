@@ -13,7 +13,7 @@ from .serializers import MessageSerializer
 
 
 class MessageApi(APIView):
-    max_try = 10
+    max_try = 50
 
     renderer_classes = [JSONRenderer]
 
@@ -33,8 +33,8 @@ class MessageApi(APIView):
                 self.max_try -= 1
                 continue
             # yield from response
-            if "<!DOCTYPE html>" not in response:
-                return response
+            #if "<!DOCTYPE html>" not in response:
+            return response
                 # for message in response:
                 #     yield message
                 # break
