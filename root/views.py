@@ -28,13 +28,13 @@ class MessageApi(APIView):
                     messages=[{"role": "user", "content": message}],
                     # stream=True,
                 )
-            except KeyError as e:
+            except:
                 # print(e)
                 self.max_try -= 1
                 continue
             # yield from response
-            #if "<!DOCTYPE html>" not in response:
-            return response
+            if "<!DOCTYPE html>" not in response:
+                return response
                 # for message in response:
                 #     yield message
                 # break
