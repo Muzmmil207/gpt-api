@@ -13,7 +13,7 @@ from .serializers import MessageSerializer
 
 
 class MessageApi(APIView):
-    max_try = 2
+    max_try = 10
 
     renderer_classes = [JSONRenderer]
 
@@ -58,20 +58,3 @@ class MessageApi(APIView):
         # end = time.time()
         # print(f"time: {end-start}")
         return Response(response)
-
-
-@api_view(["GET"])
-def get_routes(request):
-
-    return Response({})
-
-
-@api_view(["POST", "GET"])
-def messages(request):
-    message = request.data.get("message", "")
-    response = g4f.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": message}],
-    )
-    data = {"data": response}
-    return Response(data)
