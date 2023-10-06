@@ -1,6 +1,7 @@
 import time
 
 import g4f
+from django.http import StreamingHttpResponse
 from g4f.Provider import (
     Acytoo,
     Aichat,
@@ -23,9 +24,6 @@ from g4f.Provider import (
     You,
     Yqcloud,
 )
-
-# from django.http import  StreamingHttpResponse
-from rest_framework.decorators import api_view
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -71,26 +69,24 @@ class MessageApi(APIView):
                 continue
             # yield from response
             if "<!DOCTYPE html>" not in response:
-                return response
-                # for message in response:
-                #     yield message
-                # break
-        # yield "Network Error"
-        return "Network Error!, Please try again."
+                for message in response:
+                    yield message
+                break
+        yield ""
+        # return "Network Error!, Please try again."
 
     def get(self, request, format=None):
-
         usernames = []
         return Response(usernames)
 
     def post(self, request, format=None):
         # start = time.time()
         message = request.data.get("message", "")
-        response = self.message_generator(message)
-        # response = StreamingHttpResponse(
-        #     self.message_generator(message), status=200, content_type="text/event-stream"
-        # )
-        # response["Cache-Control"] = ("no-cache",)
+        # response = self.message_generator(message)
+        response = StreamingHttpResponse(
+            self.message_generator(message), status=200, content_type="text/event-stream"
+        )
+        response["Cache-Control"] = ("no-cache",)
         # end = time.time()
         # print(f"time: {end-start}")
-        return Response(response)
+        return response
