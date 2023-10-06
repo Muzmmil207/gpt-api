@@ -34,8 +34,6 @@ from .serializers import MessageSerializer
 
 
 class MessageApi(APIView):
-    max_try = 50
-
     renderer_classes = [JSONRenderer]
 
     serializer_class = MessageSerializer
@@ -46,7 +44,6 @@ class MessageApi(APIView):
             Acytoo,
             Aichat,
             Ails,
-            ChatBase,
             ChatgptAi,
             ChatgptLogin,
             CodeLinkAva,
@@ -71,18 +68,13 @@ class MessageApi(APIView):
                     provider=provider,
                 )
             except Exception as e:
-                print(e)
-                self.max_try -= 1
                 continue
             # yield from response
             if "<!DOCTYPE html>" not in response:
-                print(f"response: {response}")
-                print(f"provider: {provider}")
                 return response
                 # for message in response:
                 #     yield message
                 # break
-            self.max_try -= 1
         # yield "Network Error"
         return "Network Error!, Please try again."
 
