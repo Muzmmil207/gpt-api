@@ -90,3 +90,38 @@ class MessageApi(APIView):
         # end = time.time()
         # print(f"time: {end-start}")
         return response
+
+
+class WriteApi(APIView):
+    renderer_classes = [JSONRenderer]
+
+    serializer_class = MessageSerializer
+
+    def message_generator(self, message):
+        response = "<!DOCTYPE html>"
+        for provider in range(10):
+            try:
+                response = g4f.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=[{"role": "user", "content": message}],
+                )
+            except Exception as e:
+                continue
+            # yield from response
+            if "<!DOCTYPE html>" not in response:
+                lower_case = response.lower()
+                if (
+                    "m sorry" not in lower_case
+                    and "i could" not in lower_case
+                    and "i do" not in lower_case
+                ):
+                    return response
+
+    def get(self, request, format=None):
+        return Response("")
+
+    def post(self, request, format=None):
+        message = request.data.get("message", "")
+        response = self.message_generator(message)
+
+        return Response(response)
