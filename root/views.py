@@ -38,8 +38,18 @@ class MessageApi(APIView):
 
     def message_generator(self, message):
         response = "<!DOCTYPE html>"
+        try:
+            response = g4f.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": message}],
+            )
+            if "<!DOCTYPE html>" not in response:
+                for message in response:
+                    yield message
+                return
+        except Exception as e:
+            pass
         for provider in (
-            Acytoo,
             Aichat,
             Ails,
             ChatgptAi,
@@ -111,7 +121,7 @@ class WriteApi(APIView):
             if "<!DOCTYPE html>" not in response:
                 lower_case = response.lower()
                 if (
-                    "m sorry" not in lower_case
+                    "sorry" not in lower_case
                     and "i could" not in lower_case
                     and "i do" not in lower_case
                 ):
