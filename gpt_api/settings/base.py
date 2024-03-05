@@ -31,6 +31,7 @@ DJANGO_COMMON_APPS = [
 ]
 LOCAL_APPS = [
     "root",
+    "blog",
 ]
 THIRD_PARTY_APPS = [
     "rest_framework",

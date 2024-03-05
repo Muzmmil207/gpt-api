@@ -23,9 +23,6 @@ cover/
 
 # Django stuff:
 *.log
-db.sqlite3
-db.sqlite3-journal
-
 celerybeat.pid
 
 # SageMath parsed files
